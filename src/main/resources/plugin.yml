@@ -1,0 +1,10 @@
+name: ClanBattle
+description: "Plugin allows clans to battle for regions."
+version: 1.0
+main: net.dinikin.clansbattle.plugin.ClansBattlePlugin
+depend: [WorldGuard, Vault, LuckPerms, Clans, Essentials]
+commands:
+  cb:
+    description: Clans Battle V1.0
+  clansbattle:
+    description: Clans Battle V1.0

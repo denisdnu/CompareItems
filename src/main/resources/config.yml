@@ -1,0 +1,17 @@
+regions:
+  port:
+    region: port
+    name: Port
+    time_to_capture: 10
+    time_to_keep: 20
+    min_clan_players: 1
+    perm_to_set: clansbattle.captured
+    owner_player_payout: 200
+    allies_player_payout: 150
+    clan_payout_as_owner: 100
+    clan_payout_as_ally: 50
+    clan_payout_as_ally_to_owner: 50
+    period: 60
+    msg_prefix: "§6[§9Clans Batlle§6]§f"
+    owner_suffix: "§6[§4AGGRESSOR§4]§f"
+    ally_suffix: "§6[§dСОЮЗНИК§4]§f"
