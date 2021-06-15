@@ -5,6 +5,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+
+/*
+    This class represents a Region that can be captured by any clan.
+    It saves clan-winner and clan-candidate info, last visit and payment time etc.
+ */
 public class Region implements Serializable {
     private static transient final long serialVersionUID = -1681012206529286320L;
     private final String name;

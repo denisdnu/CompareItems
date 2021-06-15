@@ -1,6 +1,5 @@
 package net.dinikin.clansbattle.plugin;
 
-import net.brcdev.shopgui.ShopGuiPlusApi;
 import net.brcdev.shopgui.provider.item.ItemProvider;
 import net.brcdev.shopgui.util.ItemUtils;
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,6 +8,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+/*
+    Actually this class is not for this plugin and should be moved to separate one.
+ */
 public class MyItemsProvider extends ItemProvider {
 
     private final Set<ItemStack> itemStackSet = new HashSet<>();

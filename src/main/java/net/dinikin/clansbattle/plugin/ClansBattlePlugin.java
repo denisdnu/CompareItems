@@ -12,6 +12,7 @@ import com.youtube.hempfest.clans.HempfestClans;
 import com.youtube.hempfest.clans.util.construct.Clan;
 import com.youtube.hempfest.clans.util.construct.ClanUtil;
 import net.brcdev.shopgui.ShopGuiPlusApi;
+import net.dinikin.clansbattle.plugin.listeners.PlayerEventListener;
 import net.dinikin.clansbattle.plugin.listeners.RegionEventListener;
 import net.dinikin.clansbattle.plugin.placeholders.*;
 import net.luckperms.api.LuckPerms;
@@ -51,8 +52,10 @@ public class ClansBattlePlugin extends JavaPlugin implements Listener {
     }
 
     public void onEnable() {
+        //loading plugin saved data from json file
         clansBattleData = new ClansBattleData(ClanBattleDataSaver.loadData());
         loadConfig();
+        //loading regions info into hashmap
         loadRegions();
         registerCommands();
         hookIntoShopGui();
@@ -63,10 +66,12 @@ public class ClansBattlePlugin extends JavaPlugin implements Listener {
         setupLuckPerms();
         registerPlaceholdersApi();
         Bukkit.getPluginManager().registerEvents(new RegionEventListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerEventListener(this), this);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             while (getServer().getPluginManager().isPluginEnabled("ClanBattle")) {
                 try {
+                    //checking whether there is a candidate to capture a region
                     findWinnersInRegions();
                     ClanBattleDataSaver.saveData(clansBattleData);
                 } catch (Exception ex) {
@@ -113,16 +118,19 @@ public class ClansBattlePlugin extends JavaPlugin implements Listener {
                 int candidatePlayersNumber = region.getCandidate() == null ? 0 : region.getClanPlayersMap().get(region.getCandidate()).size();
                 boolean regionIsFull = candidatePlayersNumber >= minPlayers;
                 RegionConfig regionConfig = pluginConfig.getRegionConfigMap().get(region.getName());
+                //checking if region has owner and already been visited by him
                 if (region.getLastOwnerVisitTime() != null) {
                     Duration duration = Duration.between(region.getLastOwnerVisitTime(), LocalDateTime.now());
                     long sinceCaptured = duration.getSeconds();
                     long timeToKeep = pluginConfig.getRegionConfigMap().get(region.getName()).getTimeToKeep();
                     long timeToLoose = timeToKeep - sinceCaptured;
                     boolean noOwnerInRegion = region.getOwner() == null || region.getClanPlayersMap().get(region.getOwner()).isEmpty();
+                    //checking if owner starts loosing his region
                     if (timeToLoose < timeToKeep && timeToLoose > 0 && region.getStatus() == REGION_STATUS.CAPTURED && noOwnerInRegion) {
                         Clan clan = Clan.clanUtil.getClan(region.getOwner());
                         notifyLoosingRegion(regionAlias, region, clan.getClanTag(), timeToLoose);
                     }
+                    //checking that region is lost by previous owner
                     if (sinceCaptured > timeToKeep && region.getStatus() != REGION_STATUS.FREE && noOwnerInRegion) {
                         region.setFree();
                         String prefix = regionConfig.getMsgPrefix();
@@ -132,6 +140,7 @@ public class ClansBattlePlugin extends JavaPlugin implements Listener {
                         return;
                     }
                 }
+                //checking condition that  visitor can start capturing the region
                 if (region.getLastCandidateVisitTime() != null) {
                     Duration duration = Duration.between(region.getLastCandidateVisitTime(), LocalDateTime.now());
                     long sinceVisited = duration.getSeconds();
@@ -385,9 +394,14 @@ public class ClansBattlePlugin extends JavaPlugin implements Listener {
 
 
     private void loadRegions() {
+        //this map represents regions that can be captured
         Map<String, Region> regionsMap = clansBattleData.getRegionsMap();
+        //loading all defined WorldGuard regions
         RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        //iterating every existing WorldGuard region
         container.getLoaded().forEach(rm -> rm.getRegions().keySet().forEach(region -> {
+            //if any region is defined in the config as a region to be captured
+            //than new Region object would be created and added to the regions map
             if (pluginConfig.getRegionConfigMap().containsKey(region)) {
                 String regionName = region.toLowerCase();
                 String regionAlias = pluginConfig.getRegionConfigMap().get(regionName).getAlias();
