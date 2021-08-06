@@ -1,15 +1,25 @@
 package net.dinikin.compareitems.plugin;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import net.brcdev.shopgui.provider.item.ItemProvider;
 import net.brcdev.shopgui.util.ItemUtils;
+import net.brcdev.shopgui.util.NmsUtils;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.*;
 
+import static net.brcdev.shopgui.util.ItemUtils.isPlayerHead;
+
+
 public class MyItemsProvider extends ItemProvider {
 
+    public static final String MYTHIC_MOB_ITEM = "mythicMobItem";
     private final Set<ItemStack> itemStackSet = new HashSet<>();
 
 
@@ -28,11 +38,27 @@ public class MyItemsProvider extends ItemProvider {
         String config = section.getString("mythicMobItem");
         ItemStack itemStack = null;
         if (config != null) {
-            itemStack = ItemUtils.loadItemStackFromConfig(section, "mythicMobItem");
+            itemStack = ItemUtils.loadItemStackFromConfig(section, MYTHIC_MOB_ITEM);
+            ConfigurationSection mmSection = section.getConfigurationSection(MYTHIC_MOB_ITEM);
+            if (mmSection != null && isPlayerHead(itemStack)) {
+                ItemMeta itemMeta = itemStack.getItemMeta();
+                SkullMeta skullMeta = (SkullMeta) itemMeta;
+                String skullOwner = mmSection.getString("skullOwner");
+                System.out.println("skullOwner: " + skullOwner);
+                if (StringUtils.isNotEmpty(skullOwner)) {
+                    PlayerProfile playerProfile = Bukkit.createProfile(UUID.randomUUID(), skullOwner);
+                    String skin = SkullUtils.getSkinUrlByName(skullOwner);
+                    playerProfile.setProperty(new ProfileProperty("textures", skin));
+                    System.out.println("skin: " + skin);
+                    skullMeta.setPlayerProfile(playerProfile);
+                    itemStack.setItemMeta(skullMeta);
+                }
+            }
             itemStackSet.add(itemStack);
         }
         return itemStack;
     }
+
 
     public boolean compare(ItemStack stack1, ItemStack stack2) {
         ItemMeta itemMeta1 = stack1.getItemMeta();
