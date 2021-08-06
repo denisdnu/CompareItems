@@ -1,10 +1,10 @@
-name: ClanBattle
+name: CompareItems
 description: "Plugin allows clans to battle for regions."
 version: 1.0
-main: net.dinikin.clansbattle.plugin.ClansBattlePlugin
-depend: [WorldGuard, Vault, LuckPerms, Clans, Essentials]
+main: net.dinikin.compareitems.plugin.CompareItemsPlugin
+depend: [ShopGUIPlus]
 commands:
-  cb:
-    description: Clans Battle V1.0
-  clansbattle:
-    description: Clans Battle V1.0
+  cmpi:
+    description: Compare Items V1.0
+  compareitems:
+    description: Compare Items V1.0
