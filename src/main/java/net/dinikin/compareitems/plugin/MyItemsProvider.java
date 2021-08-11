@@ -45,9 +45,8 @@ public class MyItemsProvider extends ItemProvider {
                 SkullMeta skullMeta = (SkullMeta) itemMeta;
                 String skullOwner = mmSection.getString("skullOwner");
                 if (StringUtils.isNotEmpty(skullOwner)) {
-                    PlayerProfile playerProfile = Bukkit.createProfile(UUID.randomUUID(), skullOwner);
-                    String skin = SkullUtils.getSkinUrlByName(skullOwner);
-                    playerProfile.setProperty(new ProfileProperty("textures", skin));
+                    PlayerProfile playerProfile = Bukkit.createProfile(UUID.nameUUIDFromBytes(skullOwner.getBytes()), skullOwner);
+                    playerProfile.setProperty(new ProfileProperty("textures", skullOwner));
                     skullMeta.setPlayerProfile(playerProfile);
                     itemStack.setItemMeta(skullMeta);
                 }
