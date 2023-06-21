@@ -1,13 +1,12 @@
 package net.dinikin.compareitems.plugin;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
-import com.destroystokyo.paper.profile.ProfileProperty;
 import net.brcdev.shopgui.provider.item.ItemProvider;
 import net.brcdev.shopgui.util.ItemUtils;
 import net.brcdev.shopgui.util.NmsUtils;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -25,39 +24,42 @@ public class MyItemsProvider extends ItemProvider {
 
     public MyItemsProvider() {
         // You must pass the name of your item provider in the superclass constructor
-        super("MythicMobs");
-        this.ready = false;
+        super("CustomCompareItems");
     }
 
+    @Override
     public boolean isValidItem(ItemStack itemStack) {
         return itemStackSet.contains(itemStack) || itemStackSet.stream().anyMatch(i -> compare(i, itemStack));
     }
 
 
+    @Override
     public ItemStack loadItem(ConfigurationSection section) {
         String config = section.getString("mythicMobItem");
         ItemStack itemStack = null;
         if (config != null) {
             itemStack = ItemUtils.loadItemStackFromConfig(section, MYTHIC_MOB_ITEM);
+            itemStack = CraftItemStack.asCraftCopy(itemStack);
             ConfigurationSection mmSection = section.getConfigurationSection(MYTHIC_MOB_ITEM);
             if (mmSection != null && isPlayerHead(itemStack)) {
                 ItemMeta itemMeta = itemStack.getItemMeta();
                 SkullMeta skullMeta = (SkullMeta) itemMeta;
                 String skullOwner = mmSection.getString("skullOwner");
-                if (StringUtils.isNotEmpty(skullOwner)) {
+ /*               if (StringUtils.isNotEmpty(skullOwner)) {
                     PlayerProfile playerProfile = Bukkit.createProfile(UUID.randomUUID(), skullOwner);
                     String skin = SkullUtils.getSkinUrlByName(skullOwner);
                     playerProfile.setProperty(new ProfileProperty("textures", skin));
                     skullMeta.setPlayerProfile(playerProfile);
                     itemStack.setItemMeta(skullMeta);
                 }
-            }
+*/            }
             itemStackSet.add(itemStack);
         }
         return itemStack;
     }
 
 
+    @Override
     public boolean compare(ItemStack stack1, ItemStack stack2) {
         ItemMeta itemMeta1 = stack1.getItemMeta();
         ItemMeta itemMeta2 = stack2.getItemMeta();
